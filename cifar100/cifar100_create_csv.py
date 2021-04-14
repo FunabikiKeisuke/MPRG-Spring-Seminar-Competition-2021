@@ -43,7 +43,7 @@ net.load_state_dict(torch.load(weight_path))
 
 # csv の作成
 print("csv ファイルを作るっぴ！")
-csv_path = f"./cifar10_csv/{os.path.splitext(os.path.basename(args.weight_path))[0]}.csv"
+csv_path = f"./cifar100_csv/{os.path.splitext(os.path.basename(args.weight_path))[0]}.csv"
 with open(csv_path, 'w') as f:
     writer = csv.writer(f)
     writer.writerow(["image_id", "prediction"])  # ヘッダーの追加
