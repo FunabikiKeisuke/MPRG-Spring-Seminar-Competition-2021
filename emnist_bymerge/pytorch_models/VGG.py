@@ -56,6 +56,7 @@ def VGG19():
     return VGG('VGG19')
 
 
+# https://github.com/dipuk0506/SpinalNet/blob/master/MNIST_VGG/EMNIST_letters_VGG_and%20_SpinalVGG.py
 Half_width = 128
 layer_width = 128
 
