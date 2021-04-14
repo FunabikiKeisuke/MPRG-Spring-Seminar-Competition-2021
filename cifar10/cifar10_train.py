@@ -31,15 +31,11 @@ transform_test = transforms.Compose([
 
 # 学習データをダウンロード
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-# 学習データをロード
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
 # テストデータをダウンロード
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
-
-# CIFAR-10のクラス
-classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 # デバイスの設定
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

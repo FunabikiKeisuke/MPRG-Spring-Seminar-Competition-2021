@@ -29,9 +29,6 @@ transform_test = transforms.Compose([
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
-# CIFAR-10のクラス
-classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 # デバイスの設定
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"{device} で評価するっぴ！")
