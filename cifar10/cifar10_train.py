@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
 parser.add_argument("-e", "--epochs", type=int, default=1, help="学習エポック数")
 parser.add_argument("-b", "--batch_size", type=int, default=16, help="学習時のバッチサイズ")
+parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 args = parser.parse_args()
 
 # オーグメント設定
@@ -53,7 +54,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 # 学習
 print("学習を始めるっぴ！")
 epochs = args.epochs
-best_acc = 0.0
+best_acc = args.best_accuracy
 bast_epoch = 0
 for epoch in range(1, epochs + 1):
     print("epoch: %d/%d" % (epoch, epochs))
