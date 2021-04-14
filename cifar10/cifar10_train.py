@@ -14,20 +14,25 @@ parser.add_argument("-b", "--batch_size", type=int, default=16, help="学習時�
 parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 args = parser.parse_args()
 
+
 # オーグメント設定
-normalize = transforms.Normalize(  # データの正規化（各チャネルの平均，各チャネルの標準偏差）
-    mean=[0.49139765, 0.48215759, 0.44653141],
-    std=[0.24703199, 0.24348481, 0.26158789]
-)
+def get_statistics():
+    tmp_set = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transforms.ToTensor())
+    data = torch.cat([d[0] for d in torch.utils.data.DataLoader(tmp_set)])
+    return data.mean(dim=[0, 2, 3]), data.std(dim=[0, 2, 3])
+
+
+mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
+
 transform_train = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),  # Tensor
-    normalize
+    transforms.Normalize(mean, std),
 ])
 transform_test = transforms.Compose([
     transforms.ToTensor(),  # Tensor
-    normalize
+    transforms.Normalize(mean, std),
 ])
 
 # 学習データをダウンロード

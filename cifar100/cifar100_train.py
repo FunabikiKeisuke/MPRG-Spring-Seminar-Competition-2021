@@ -1,10 +1,12 @@
 import argparse
+import time
 import torch
 import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
 from pytorch_models import networks
+from utility.cutout import Cutout
 
 # パーサーの設定
 parser = argparse.ArgumentParser()
@@ -14,20 +16,26 @@ parser.add_argument("-b", "--batch_size", type=int, default=16, help="学習時�
 parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 args = parser.parse_args()
 
+
 # オーグメント設定
-normalize = transforms.Normalize(  # データの正規化（各チャネルの平均，各チャネルの標準偏差）
-    mean=[0.4914, 0.4822, 0.4465],
-    std=[0.2023, 0.1994, 0.2010],
-)
+def get_statistics():
+    tmp_set = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transforms.ToTensor())
+    data = torch.cat([d[0] for d in torch.utils.data.DataLoader(tmp_set)])
+    return data.mean(dim=[0, 2, 3]), data.std(dim=[0, 2, 3])
+
+
+mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
+
 transform_train = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
+    transforms.RandomCrop(size=(32, 32), padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),  # Tensor
-    normalize
+    transforms.Normalize(mean, std),
+    Cutout()
 ])
 transform_test = transforms.Compose([
     transforms.ToTensor(),  # Tensor
-    normalize
+    transforms.Normalize(mean, std),
 ])
 
 # 学習データをダウンロード
@@ -56,6 +64,7 @@ print("学習を始めるっぴ！")
 epochs = args.epochs
 best_acc = args.best_accuracy
 bast_epoch = 0
+start = time.time()
 for epoch in range(1, epochs + 1):
     print("epoch: %d/%d" % (epoch, epochs))
     for phase in ['train', 'test']:
@@ -75,7 +84,7 @@ for epoch in range(1, epochs + 1):
                 # loss の出力
                 running_loss += loss.item()
                 if i % 2000 == 1999:  # iが0からのカウントなので2000イテレーションごと
-                    print("iter: %d, loss: %f" % (i + 1, running_loss / 2000))
+                    print("iter: %d, loss: %f, time: %ds" % (i + 1, running_loss / 2000, int(time.time() - start)))
                     running_loss = 0.0
         else:  # 評価
             correct = 0
