@@ -28,26 +28,26 @@ testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=Tru
 testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
 # CIFAR-100のクラス
-classes = (beaver, dolphin, otter, seal, whale,
-           aquarium_fish, flatfish, ray, shark, trout,
-           orchids, poppies, roses, sunflowers, tulips,
-           bottles, bowls, cans, cups, plates,
-           apples, mushrooms, oranges, pears, sweet_peppers,
-           clock, computer_keyboard, lamp, telephone, television,
-           bed, chair, couch, table, wardrobe,
-           bee, beetle, butterfly, caterpillar, cockroach,
-           bear, leopard, lion, tiger, wolf,
-           bridge, castle, house, road, skyscraper,
-           cloud, forest, mountain, plain, sea,
-           camel, cattle, chimpanzee, elephant, kangaroo,
-           fox, porcupine, possum, raccoon, skunk,
-           crab, lobster, snail, spider, worm,
-           baby, boy, girl, man, woman,
-           crocodile, dinosaur, lizard, snake, turtle,
-           hamster, mouse, rabbit, shrew, squirrel,
-           maple, oak, palm, pine, willow,
-           bicycle, bus, motorcycle, pickup_truck, train,
-           lawn_mower, rocket, streetcar, tank, tractor)
+classes = ('beaver', 'dolphin', 'otter', 'seal', 'whale',
+           'aquarium_fish', 'flatfish', 'ray', 'shark', 'trout',
+           'orchids', 'poppies', 'roses', 'sunflowers', 'tulips',
+           'bottles', 'bowls', 'cans', 'cups', 'plates',
+           'apples', 'mushrooms', 'oranges', 'pears', 'sweet_peppers',
+           'clock', 'computer_keyboard', 'lamp', 'telephone', 'television',
+           'bed', 'chair', 'couch', 'table', 'wardrobe',
+           'bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach',
+           'bear', 'leopard', 'lion', 'tiger', 'wolf',
+           'bridge', 'castle', 'house', 'road', 'skyscraper',
+           'cloud', 'forest', 'mountain', 'plain', 'sea',
+           'camel', 'cattle', 'chimpanzee', 'elephant', 'kangaroo',
+           'fox', 'porcupine', 'possum', 'raccoon', 'skunk',
+           'crab', 'lobster', 'snail', 'spider', 'worm',
+           'baby', 'boy', 'girl', 'man', 'woman',
+           'crocodile', 'dinosaur', 'lizard', 'snake', 'turtle',
+           'hamster', 'mouse', 'rabbit', 'shrew', 'squirrel',
+           'maple', 'oak', 'palm', 'pine', 'willow',
+           'bicycle', 'bus', 'motorcycle', 'pickup_truck', 'train',
+           'lawn_mower', 'rocket', 'streetcar', 'tank', 'tractor')
 
 # デバイスの設定
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
