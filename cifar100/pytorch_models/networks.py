@@ -49,8 +49,10 @@ def get_net(net_name):
     #     net = VGG.VGG16().to(device)
     # elif net_name == "VGG19":
     #     net = VGG.VGG19().to(device)
-    elif net_name == "WideResNet":
-        net = WideResNet.WideResNet().to(device)
+    elif net_name == "WideResNet16":
+        net = WideResNet.WideResNet16().to(device)
+    elif net_name == "WideResNet28":
+        net = WideResNet.WideResNet28().to(device)
     else:
         net = f"WARNING: モデル名 {net_name} がないっぴ！"
 

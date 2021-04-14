@@ -1,3 +1,4 @@
+# https://github.com/davda54/sam
 from collections import OrderedDict
 
 import torch
@@ -57,6 +58,14 @@ class Block(nn.Module):
 
 class WideResNet(nn.Module):
     def __init__(self, depth: int, width_factor: int, dropout: float, in_channels: int, labels: int):
+        """
+        Args:
+            depth: 層の数
+            width_factor: 無印のResNetと比較して何倍広いか
+            dropout: ドロップアウト率
+            in_channels: データセットのチャネル数
+            labels: 出力ラベル数
+        """
         super(WideResNet, self).__init__()
 
         self.filters = [16, 1 * 16 * width_factor, 2 * 16 * width_factor, 4 * 16 * width_factor]
@@ -91,3 +100,11 @@ class WideResNet(nn.Module):
 
     def forward(self, x):
         return self.f(x)
+
+
+def WideResNet16():
+    return WideResNet(depth=16, width_factor=8, dropout=0., in_channels=3, labels=100)
+
+
+def WideResNet28():
+    return WideResNet(depth=28, width_factor=10, dropout=0., in_channels=3, labels=100)
