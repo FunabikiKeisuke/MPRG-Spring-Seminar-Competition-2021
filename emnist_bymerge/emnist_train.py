@@ -1,4 +1,5 @@
 import argparse
+import time
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -10,7 +11,7 @@ from pytorch_models import networks
 parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
 parser.add_argument("-e", "--epochs", type=int, default=200, help="学習エポック数")
-parser.add_argument("-b", "--batch_size", type=int, default=100, help="学習時のバッチサイズ")
+parser.add_argument("-b", "--batch_size", type=int, default=89, help="学習時のバッチサイズ")
 parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 args = parser.parse_args()
 
@@ -58,6 +59,7 @@ print("学習を始めるっぴ！")
 epochs = args.epochs
 best_acc = args.best_accuracy
 bast_epoch = 0
+start = time.time()
 for epoch in range(1, epochs + 1):
     print("epoch: %d/%d" % (epoch, epochs))
     for phase in ['train', 'test']:
@@ -77,7 +79,7 @@ for epoch in range(1, epochs + 1):
                 # loss の出力
                 running_loss += loss.item()
                 if i % 2000 == 1999:  # iが0からのカウントなので2000イテレーションごと
-                    print("iter: %d, loss: %f" % (i + 1, running_loss / 2000))
+                    print("iter: %d, loss: %f, time: %ds" % (i + 1, running_loss / 2000, int(time.time() - start)))
                     running_loss = 0.0
         else:  # 評価
             correct = 0

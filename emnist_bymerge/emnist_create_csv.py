@@ -12,13 +12,13 @@ from pytorch_models import networks
 parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
 parser.add_argument("-w", "--weight_path", type=str, help="学習済み重みのファイルパス")
-parser.add_argument("-b", "--batch_size", type=int, default=16, help="学習時のバッチサイズ")
+parser.add_argument("-b", "--batch_size", type=int, default=89, help="学習時のバッチサイズ")
 args = parser.parse_args()
 
 # オーグメント設定
 normalize = transforms.Normalize(  # データの正規化（各チャネルの平均，各チャネルの標準偏差）
-    mean=[0.5, 0.5, 0.5],
-    std=[0.25, 0.25, 0.25],
+    mean=[0.1307, ],
+    std=[0.3081, ],
 )
 transform_test = transforms.Compose([
     transforms.ToTensor(),  # Tensor
@@ -49,7 +49,7 @@ with open(csv_path, 'w') as f:
     writer = csv.writer(f)
     writer.writerow(["image_id", "prediction"])  # ヘッダーの追加
 
-image_id = 0
+image_id = 10000  # 0 ~ 9999 までは CIFAR100
 
 # 推論結果の追記
 with torch.no_grad():
