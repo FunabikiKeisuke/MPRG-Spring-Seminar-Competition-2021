@@ -4,8 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
-from pytorch_models import AlexNet, DenseNet, GoogLeNet, LeNet, MobileNet, MobileNetV2, ResNet, SENet, ShuffleNet, \
-    VGG, WideResNet
+from pytorch_models import networks
 
 # パーサーの設定
 parser = argparse.ArgumentParser()
@@ -15,22 +14,28 @@ parser.add_argument("-b", "--batch_size", type=int, default=16, help="学習時�
 args = parser.parse_args()
 
 # オーグメント設定
-traintransform = transforms.Compose(
-    [transforms.ToTensor(),  # Tensor
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]  # データの正規化（各チャネルの平均，各チャネルの標準偏差）
+normalize = transforms.Normalize(  # データの正規化（各チャネルの平均，各チャネルの標準偏差）
+    mean=[0.49139765, 0.48215759, 0.44653141],
+    std=[0.24703199, 0.24348481, 0.26158789]
 )
-testtransform = transforms.Compose(
-    [transforms.ToTensor(),  # Tensor
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]  # データの正規化（各チャネルの平均，各チャネルの標準偏差）
-)
+transform_train = transforms.Compose([
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),  # Tensor
+    normalize
+])
+transform_test = transforms.Compose([
+    transforms.ToTensor(),  # Tensor
+    normalize
+])
 
 # 学習データをダウンロード
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=traintransform)
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
 # 学習データをロード
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
 # テストデータをダウンロード
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=testtransform)
+testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
 # CIFAR-10のクラス
@@ -41,52 +46,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"{device} で学習するっぴ！")
 
 # モデルの選択
-if args.net == "AlexNet":
-    net = AlexNet.AlexNet().to(device)
-elif args.net == "DenseNet121":
-    net = DenseNet.DenseNet121().to(device)
-elif args.net == "DenseNet161":
-    net = DenseNet.DenseNet161().to(device)
-elif args.net == "DenseNet169":
-    net = DenseNet.DenseNet169().to(device)
-elif args.net == "DenseNet201":
-    net = DenseNet.DenseNet201().to(device)
-elif args.net == "GoogLeNet":
-    net = GoogLeNet.GoogLeNet().to(device)
-elif args.net == "LeNet":
-    net = LeNet.LeNet().to(device)
-elif args.net == "MobileNet":
-    net = MobileNet.MobileNet().to(device)
-elif args.net == "MobileNetV2":
-    net = MobileNetV2.MobileNetV2().to(device)
-elif args.net == "ResNet18":
-    net = ResNet.ResNet18().to(device)
-elif args.net == "ResNet34":
-    net = ResNet.ResNet34().to(device)
-elif args.net == "ResNet50":
-    net = ResNet.ResNet50().to(device)
-elif args.net == "ResNet101":
-    net = ResNet.ResNet101().to(device)
-elif args.net == "ResNet152":
-    net = ResNet.ResNet152().to(device)
-elif args.net == "SENet18":
-    net = SENet.SENet18().to(device)
-elif args.net == "ShuffleNetG2":
-    net = ShuffleNet.ShuffleNetG2().to(device)
-elif args.net == "ShuffleNetG3":
-    net = ShuffleNet.ShuffleNetG3().to(device)
-elif args.net == "VGG11":
-    net = VGG.VGG11().to(device)
-elif args.net == "VGG13":
-    net = VGG.VGG13().to(device)
-elif args.net == "VGG16":
-    net = VGG.VGG16().to(device)
-elif args.net == "VGG19":
-    net = VGG.VGG19().to(device)
-elif args.net == "WideResNet":
-    net = WideResNet.WideResNet().to(device)
-else:
-    net = f"WARNING: モデル名 {args.net} がないっぴ！"
+net = networks.get_net(args.net)
 print(net)
 
 # 損失関数
