@@ -1,5 +1,6 @@
 import argparse
 import time
+import numpy as np
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -12,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
 parser.add_argument("-e", "--epochs", type=int, default=200, help="学習エポック数")
 parser.add_argument("-b", "--batch_size", type=int, default=89, help="学習時のバッチサイズ")
-parser.add_argument("-a", "--best_accuracy", type=float, default=0.90817, help="同じモデルの過去の最高精度")
+parser.add_argument("-a", "--best_accuracy", type=float, default=0.9092354, help="同じモデルの過去の最高精度")
 args = parser.parse_args()
 
 
@@ -27,6 +28,8 @@ def get_statistics():
 mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
 
 transform_train = transforms.Compose([
+    # transforms.RandomAffine(degrees=75, translate=(0.3, 0.3), scale=(0.5, 1.5), shear=30),  # 微妙
+    # transforms.RandomCrop(28, padding=3),
     transforms.RandomPerspective(),
     transforms.RandomRotation(10, fill=(0,)),
     transforms.ToTensor(),  # Tensor
@@ -57,12 +60,22 @@ print(net)
 
 # 損失関数
 criterion = nn.CrossEntropyLoss()
+
+
 # 最適化関数
-optimizer = optim.Adam(net.parameters(), lr=0.005)
+def update_lr(optimizer, lr):
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
+lr = 0.005
+curr_lr = lr
+optimizer = optim.Adam(net.parameters(), lr=lr)
 
 # 学習
 print("学習を始めるっぴ！")
 epochs = args.epochs
+update_acc = 0.
 best_acc = args.best_accuracy
 bast_epoch = 0
 start = time.time()
@@ -81,7 +94,6 @@ for epoch in range(1, epochs + 1):
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
-
                 # loss の出力
                 running_loss += loss.item()
                 if i % 2000 == 1999:  # iが0からのカウントなので2000イテレーションごと
@@ -102,8 +114,15 @@ for epoch in range(1, epochs + 1):
                     correct += (predicted == labels).sum().item()
                     acc = correct / total
             print(f"Accuracy: {acc}")
+            # 学習率の更新
+            if update_acc >= acc:
+                curr_lr = lr * pow(np.random.rand(1), 3).item()
+                print(f"精度が向上しなかったから学習率を {curr_lr} に変えるっぴ！")
+                update_lr(optimizer, curr_lr)
+            else:
+                update_acc = acc
+            # モデルの保存
             if acc > best_acc:
-                # モデルの保存
                 best_acc = acc
                 bast_epoch = epoch
                 weight_path = f"./emnist_weight/{args.net}_bs{args.batch_size}.pth"
