@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
 parser.add_argument("-e", "--epochs", type=int, default=200, help="学習エポック数")
 parser.add_argument("-b", "--batch_size", type=int, default=89, help="学習時のバッチサイズ")
-parser.add_argument("-a", "--best_accuracy", type=float, default=0.9092354, help="同じモデルの過去の最高精度")
+parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 args = parser.parse_args()
 
 
