@@ -5,6 +5,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
 from pytorch_models import networks
 from utility.log import Log
 from utility.initialize import initialize
@@ -33,6 +34,31 @@ def get_statistics():
     return data.mean(dim=[0, 2, 3]), data.std(dim=[0, 2, 3])
 
 
+def cutmix(batch):
+    inputs, labels = batch
+
+    ### Shuffle Minibatch ###
+    indices = torch.randperm(inputs.size(0))
+    inputs_s, labels_s = inputs[indices], labels[indices]
+
+    lamb = np.random.uniform(0.0, 1.0)
+
+    H, W = inputs.shape[2:]
+    r_x = np.random.uniform(0, W)
+    r_y = np.random.uniform(0, H)
+    r_w = W * np.sqrt(1 - lamb)
+    r_h = H * np.sqrt(1 - lamb)
+    x1 = int(np.round(max(r_x - r_w / 2, 0)))
+    x2 = int(np.round(min(r_x + r_w / 2, W)))
+    y1 = int(np.round(max(r_y - r_h / 2, 0)))
+    y2 = int(np.round(min(r_y + r_h / 2, H)))
+
+    inputs[:, :, x1:x2, y1:y2] = inputs_s[:, :, x1:x2, y1:y2]
+    labels = (labels, labels_s, lamb)
+
+    return inputs, labels
+
+
 if args.calc_statistics:
     mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
     print(f"このデータセットは mean: {mean.to('cpu').detach().numpy()}, std: {std.to('cpu').detach().numpy()} だっぴ！")
@@ -42,7 +68,7 @@ else:
 
 transform_train = transforms.Compose([
     # transforms.RandomRotation(15),
-    transforms.RandomCrop(size=(32, 32), padding=4),
+    # transforms.RandomCrop(size=(32, 32), padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),  # Tensor
     transforms.Normalize(mean, std),
@@ -67,7 +93,9 @@ print(f"{device} で学習するっぴ！")
 
 # モデルの選択
 net = networks.get_net(args.net)
-print(net)
+
+
+# print(net)
 
 
 def count_parameters(model):
@@ -95,15 +123,19 @@ for epoch in range(1, epochs + 1):
             running_loss = 0.0
             for i, data in enumerate(trainloader, 0):
                 # データの取得
-                inputs, labels = data[0].to(device), data[1].to(device)
+                data = cutmix(data)
+                inputs, labels = data[0].to(device), data[1]
                 # 勾配を初期化
                 optimizer.zero_grad()
                 # 順伝播，逆伝播，パラメータ更新
                 outputs = net(inputs)
-                loss = smooth_crossentropy(outputs, labels)
+                target, target_s, lamb = labels[0].to(device), labels[1].to(device), labels[2]
+                loss = lamb * smooth_crossentropy(outputs, target) + (1 - lamb) * smooth_crossentropy(outputs, target_s)
                 loss.mean().backward()
                 optimizer.first_step(zero_grad=True)
-                smooth_crossentropy(net(inputs), labels).mean().backward()
+                loss_second = lamb * smooth_crossentropy(net(inputs), target) + (1 - lamb) * smooth_crossentropy(
+                    net(inputs), target_s)
+                loss_second.mean().backward()
                 optimizer.second_step(zero_grad=True)
                 # 学習率更新
                 with torch.no_grad():
