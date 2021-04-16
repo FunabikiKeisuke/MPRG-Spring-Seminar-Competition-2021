@@ -41,6 +41,7 @@ else:
     std = [0.26733428, 0.25643846, 0.27615047]
 
 transform_train = transforms.Compose([
+    # transforms.RandomRotation(15),
     transforms.RandomCrop(size=(32, 32), padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),  # Tensor
@@ -68,6 +69,12 @@ print(f"{device} で学習するっぴ！")
 net = networks.get_net(args.net)
 print(net)
 
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters())
+
+
+print(count_parameters(net))
 # 損失関数
 # criterion = nn.CrossEntropyLoss()
 # 最適化関数
