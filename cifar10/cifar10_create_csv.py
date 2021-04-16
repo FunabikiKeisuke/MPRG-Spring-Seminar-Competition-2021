@@ -13,16 +13,27 @@ parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
 parser.add_argument("-w", "--weight_path", type=str, help="学習済み重みのファイルパス")
 parser.add_argument("-b", "--batch_size", type=int, default=16, help="学習時のバッチサイズ")
+parser.add_argument("--calc_statistics", type=bool, default=False, help="データセットのmean, stdを計算するかどうか")
 args = parser.parse_args()
 
+
 # オーグメント設定
-normalize = transforms.Normalize(  # データの正規化（各チャネルの平均，各チャネルの標準偏差）
-    mean=[0.49139765, 0.48215759, 0.44653141],
-    std=[0.24703199, 0.24348481, 0.26158789]
-)
+def get_statistics():
+    tmp_set = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transforms.ToTensor())
+    data = torch.cat([d[0] for d in torch.utils.data.DataLoader(tmp_set)])
+    return data.mean(dim=[0, 2, 3]), data.std(dim=[0, 2, 3])
+
+
+if args.calc_statistics:
+    mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
+    print(f"このデータセットは mean: {mean.to('cpu').detach().numpy()}, std: {std.to('cpu').detach().numpy()} だっぴ！")
+else:
+    mean = [0.49139765, 0.48215759, 0.44653141]
+    std = [0.24703199, 0.24348481, 0.26158789]
+
 transform_test = transforms.Compose([
     transforms.ToTensor(),  # Tensor
-    normalize
+    transforms.Normalize(mean, std)
 ])
 
 # テストデータをダウンロード

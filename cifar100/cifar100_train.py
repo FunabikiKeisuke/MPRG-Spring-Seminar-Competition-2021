@@ -19,6 +19,7 @@ parser.add_argument("net", type=str, help="ネットワークモデルの名前"
 parser.add_argument("-e", "--epochs", type=int, default=200, help="学習エポック数")
 parser.add_argument("-b", "--batch_size", type=int, default=100, help="学習時のバッチサイズ")
 parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
+parser.add_argument("--calc_statistics", type=bool, default=False, help="データセットのmean, stdを計算するかどうか")
 args = parser.parse_args()
 
 # 初期化
@@ -32,7 +33,12 @@ def get_statistics():
     return data.mean(dim=[0, 2, 3]), data.std(dim=[0, 2, 3])
 
 
-mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
+if args.calc_statistics:
+    mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
+    print(f"このデータセットは mean: {mean.to('cpu').detach().numpy()}, std: {std.to('cpu').detach().numpy()} だっぴ！")
+else:
+    mean = [0.5070758, 0.4865503, 0.44091913]
+    std = [0.26733428, 0.25643846, 0.27615047]
 
 transform_train = transforms.Compose([
     transforms.RandomCrop(size=(32, 32), padding=4),
