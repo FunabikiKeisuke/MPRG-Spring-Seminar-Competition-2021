@@ -1,6 +1,6 @@
 import torch
 from pytorch_models import AlexNet, DenseNet, GoogLeNet, LeNet, MobileNet, MobileNetV2, ResNet, SENet, ShuffleNet, \
-    VGG, WideResNet
+    VGG, WideResNet, EfficientNet
 
 # デバイスの設定
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -53,6 +53,24 @@ def get_net(net_name):
         net = WideResNet.WideResNet16().to(device)
     elif net_name == "WideResNet28":
         net = WideResNet.WideResNet28().to(device)
+    # elif net_name == "WideResNet101":
+    #     net = WideResNet.WideResNet101().to(device)
+    elif net_name == "EfficientNet_b0":
+        net = EfficientNet.efficientnet_b0(100).to(device)
+    elif net_name == "EfficientNet_b1":
+        net = EfficientNet.efficientnet_b1(100).to(device)
+    elif net_name == "EfficientNet_b2":
+        net = EfficientNet.efficientnet_b2(100).to(device)
+    elif net_name == "EfficientNet_b3":
+        net = EfficientNet.efficientnet_b3(100).to(device)
+    elif net_name == "EfficientNet_b4":
+        net = EfficientNet.efficientnet_b4(100).to(device)
+    elif net_name == "EfficientNet_b5":
+        net = EfficientNet.efficientnet_b5(100).to(device)
+    elif net_name == "EfficientNet_b6":
+        net = EfficientNet.efficientnet_b6(100).to(device)
+    elif net_name == "EfficientNet_b7":
+        net = EfficientNet.efficientnet_b7(100).to(device)
     else:
         net = f"WARNING: モデル名 {net_name} がないっぴ！"
 
