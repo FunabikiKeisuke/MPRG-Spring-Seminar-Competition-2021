@@ -7,24 +7,15 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
 from pytorch_models import networks
-from utility.log import Log
-from utility.initialize import initialize
-from utility.cutout import Cutout
-from utility.sam import SAM
-from utility.step_lr import StepLR
-from utility.smooth_cross_entropy import smooth_crossentropy
 
 # パーサーの設定
 parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
-parser.add_argument("-e", "--epochs", type=int, default=200, help="学習エポック数")
+parser.add_argument("-e", "--epochs", type=int, default=20, help="学習エポック数")
 parser.add_argument("-b", "--batch_size", type=int, default=89, help="学習時のバッチサイズ")
 parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 parser.add_argument("--calc_statistics", type=bool, default=False, help="データセットのmean, stdを計算するかどうか")
 args = parser.parse_args()
-
-# 初期化
-initialize(args, seed=42)
 
 
 # オーグメント設定
@@ -37,16 +28,17 @@ def get_statistics():
 
 if args.calc_statistics:
     mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
-    print(f"このデータセットは mean: {mean}, std: {std} だっぴ！")
+    print(f"このデータセットは mean: {mean.to('cpu').detach().numpy()}, std: {std.to('cpu').detach().numpy()} だっぴ！")
 else:
-    mean = [0.1736]
-    std = [0.3317]
+    mean = [0.17359632]
+    std = [0.33165097]
 
 transform_train = transforms.Compose([
     # transforms.RandomAffine(degrees=75, translate=(0.3, 0.3), scale=(0.5, 1.5), shear=30),  # 微妙
     # transforms.RandomCrop(28, padding=3),  # 変わらない
     transforms.RandomPerspective(),
-    transforms.RandomRotation(10, fill=(0,)),
+    # transforms.RandomRotation(10, fill=(0,)),
+    transforms.RandomAffine(degrees=[-10, 10], translate=(0.1, 0.1), scale=(0.5, 1.5)),  # Rotation の代わり
     transforms.ToTensor(),  # Tensor
     transforms.Normalize(mean, std),
 ])
@@ -74,15 +66,23 @@ net = networks.get_net(args.net)
 print(net)
 
 # 損失関数
-# criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss()
+
+
 # 最適化関数
-base_optimizer = optim.SGD
-optimizer = SAM(net.parameters(), base_optimizer, rho=0.05, lr=0.1, momentum=0.9, weight_decay=0.0005)
-scheduler = StepLR(optimizer, 0.1, args.epochs)
+def update_lr(optimizer, lr):
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
+lr = 0.005
+curr_lr = lr
+optimizer = optim.Adam(net.parameters(), lr=lr)
 
 # 学習
 print("学習を始めるっぴ！")
 epochs = args.epochs
+update_acc = 0.
 best_acc = args.best_accuracy
 bast_epoch = 0
 start = time.time()
@@ -98,16 +98,11 @@ for epoch in range(1, epochs + 1):
                 optimizer.zero_grad()
                 # 順伝播，逆伝播，パラメータ更新
                 outputs = net(inputs)
-                loss = smooth_crossentropy(outputs, labels)
-                loss.mean().backward()
-                optimizer.first_step(zero_grad=True)
-                smooth_crossentropy(net(inputs), labels).mean().backward()
-                optimizer.second_step(zero_grad=True)
-                # 学習率更新
-                with torch.no_grad():
-                    scheduler(epoch)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
                 # loss の出力
-                running_loss += loss.mean().item()
+                running_loss += loss.item()
                 if i % 2000 == 1999:  # iが0からのカウントなので2000イテレーションごと
                     print("iter: %d, loss: %f, time: %ds" % (i + 1, running_loss / 2000, int(time.time() - start)))
                     running_loss = 0.0
@@ -126,6 +121,13 @@ for epoch in range(1, epochs + 1):
                     correct += (predicted == labels).sum().item()
                     acc = correct / total
             print(f"Accuracy: {acc}")
+            # 学習率の更新
+            if update_acc >= acc:
+                curr_lr = lr * pow(np.random.rand(1), 3).item()
+                print(f"精度が向上しなかったから学習率を {curr_lr} に変えるっぴ！")
+                update_lr(optimizer, curr_lr)
+            else:
+                update_acc = acc
             # モデルの保存
             if acc > best_acc:
                 best_acc = acc
