@@ -53,8 +53,8 @@ def get_net(net_name):
         net = WideResNet.WideResNet16().to(device)
     elif net_name == "WideResNet28":
         net = WideResNet.WideResNet28().to(device)
-    # elif net_name == "WideResNet101":
-    #     net = WideResNet.WideResNet101().to(device)
+    elif net_name == "WideResNet40":
+        net = WideResNet.WideResNet40().to(device)
     elif net_name == "EfficientNet_b0":
         net = EfficientNet.efficientnet_b0(100).to(device)
     elif net_name == "EfficientNet_b1":
