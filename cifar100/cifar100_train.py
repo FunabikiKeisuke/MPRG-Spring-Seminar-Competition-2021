@@ -68,7 +68,7 @@ else:
 
 transform_train = transforms.Compose([
     # transforms.RandomRotation(15),
-    # transforms.RandomCrop(size=(32, 32), padding=4),
+    transforms.RandomCrop(size=(32, 32), padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),  # Tensor
     transforms.Normalize(mean, std),
@@ -93,9 +93,7 @@ print(f"{device} で学習するっぴ！")
 
 # モデルの選択
 net = networks.get_net(args.net)
-
-
-# print(net)
+print(net)
 
 
 def count_parameters(model):
@@ -123,19 +121,15 @@ for epoch in range(1, epochs + 1):
             running_loss = 0.0
             for i, data in enumerate(trainloader, 0):
                 # データの取得
-                data = cutmix(data)
-                inputs, labels = data[0].to(device), data[1]
+                inputs, labels = data[0].to(device), data[1].to(device)
                 # 勾配を初期化
                 optimizer.zero_grad()
                 # 順伝播，逆伝播，パラメータ更新
                 outputs = net(inputs)
-                target, target_s, lamb = labels[0].to(device), labels[1].to(device), labels[2]
-                loss = lamb * smooth_crossentropy(outputs, target) + (1 - lamb) * smooth_crossentropy(outputs, target_s)
+                loss = smooth_crossentropy(outputs, labels)
                 loss.mean().backward()
                 optimizer.first_step(zero_grad=True)
-                loss_second = lamb * smooth_crossentropy(net(inputs), target) + (1 - lamb) * smooth_crossentropy(
-                    net(inputs), target_s)
-                loss_second.mean().backward()
+                smooth_crossentropy(net(inputs), labels).mean().backward()
                 optimizer.second_step(zero_grad=True)
                 # 学習率更新
                 with torch.no_grad():
