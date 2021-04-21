@@ -51,8 +51,12 @@ def get_net(net_name):
     #     net = VGG.VGG19().to(device)
     elif net_name == "WideResNet16":
         net = WideResNet.WideResNet16().to(device)
+    elif net_name == "WideResNet22":
+        net = WideResNet.WideResNet22().to(device)
     elif net_name == "WideResNet28":
         net = WideResNet.WideResNet28().to(device)
+    elif net_name == "WideResNet34":
+        net = WideResNet.WideResNet34().to(device)
     elif net_name == "WideResNet40":
         net = WideResNet.WideResNet40().to(device)
     elif net_name == "EfficientNet_b0":

@@ -106,8 +106,16 @@ def WideResNet16():
     return WideResNet(depth=16, width_factor=8, dropout=0., in_channels=3, labels=100)
 
 
+def WideResNet22():
+    return WideResNet(depth=22, width_factor=10, dropout=0., in_channels=3, labels=100)
+
+
 def WideResNet28():
     return WideResNet(depth=28, width_factor=10, dropout=0., in_channels=3, labels=100)
+
+
+def WideResNet34():
+    return WideResNet(depth=34, width_factor=10, dropout=0., in_channels=3, labels=100)
 
 
 def WideResNet40():
