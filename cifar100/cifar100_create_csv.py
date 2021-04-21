@@ -12,7 +12,7 @@ from pytorch_models import networks
 parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
 parser.add_argument("-w", "--weight_path", type=str, help="学習済み重みのファイルパス")
-parser.add_argument("-b", "--batch_size", type=int, default=16, help="学習時のバッチサイズ")
+parser.add_argument("-b", "--batch_size", type=int, default=100, help="学習時のバッチサイズ")
 parser.add_argument("--calc_statistics", type=bool, default=False, help="データセットのmean, stdを計算するかどうか")
 args = parser.parse_args()
 
