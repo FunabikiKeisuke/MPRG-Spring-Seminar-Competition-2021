@@ -11,7 +11,7 @@ from pytorch_models import networks
 # パーサーの設定
 parser = argparse.ArgumentParser()
 parser.add_argument("net", type=str, help="ネットワークモデルの名前")
-parser.add_argument("-e", "--epochs", type=int, default=20, help="学習エポック数")
+parser.add_argument("-e", "--epochs", type=int, default=100, help="学習エポック数")
 parser.add_argument("-b", "--batch_size", type=int, default=89, help="学習時のバッチサイズ")
 parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 parser.add_argument("--calc_statistics", type=bool, default=False, help="データセットのmean, stdを計算するかどうか")
@@ -78,6 +78,7 @@ def update_lr(optimizer, lr):
 lr = 0.005
 curr_lr = lr
 optimizer = optim.Adam(net.parameters(), lr=lr)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=5)
 
 # 学習
 print("学習を始めるっぴ！")
@@ -109,25 +110,29 @@ for epoch in range(1, epochs + 1):
         else:  # 評価
             correct = 0
             total = 0
+            val_loss = 0
             with torch.no_grad():
                 for data in testloader:
                     # データの取得
                     images, labels = data[0].to(device), data[1].to(device)
                     # 順伝播，クラス判定
                     outputs = net(images)
+                    val_loss = criterion(outputs, labels)
                     _, predicted = torch.max(outputs.data, 1)
                     # 精度算出
                     total += labels.size(0)
                     correct += (predicted == labels).sum().item()
                     acc = correct / total
-            print(f"Accuracy: {acc}")
+            print(f"val_acc : {acc}")
             # 学習率の更新
-            if update_acc >= acc:
-                curr_lr = lr * pow(np.random.rand(1), 3).item()
-                print(f"精度が向上しなかったから学習率を {curr_lr} に変えるっぴ！")
-                update_lr(optimizer, curr_lr)
-            else:
-                update_acc = acc
+            print(f"val_loss: {val_loss}")
+            scheduler.step(val_loss)
+            # if update_acc >= acc:
+            #     curr_lr = lr * pow(np.random.rand(1), 3).item()
+            #     print(f"精度が向上しなかったから学習率を {curr_lr} に変えるっぴ！")
+            #     update_lr(optimizer, curr_lr)
+            # else:
+            #     update_acc = acc
             # モデルの保存
             if acc > best_acc:
                 best_acc = acc
