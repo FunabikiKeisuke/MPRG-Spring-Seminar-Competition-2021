@@ -1,4 +1,5 @@
 import argparse
+import random
 import time
 import numpy as np
 import torch
@@ -16,6 +17,20 @@ parser.add_argument("-b", "--batch_size", type=int, default=89, help="学習時�
 parser.add_argument("-a", "--best_accuracy", type=float, default=0., help="同じモデルの過去の最高精度")
 parser.add_argument("--calc_statistics", type=bool, default=False, help="データセットのmean, stdを計算するかどうか")
 args = parser.parse_args()
+
+
+def initialize(args, seed: int):
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+    torch.backends.cudnn.enabled = True
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.deterministic = False
+
+
+initialize(args, seed=46)  # おぼろげに浮かんできた数字
 
 
 # オーグメント設定
