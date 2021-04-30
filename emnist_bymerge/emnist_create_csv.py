@@ -29,8 +29,8 @@ if args.calc_statistics:
     mean, std = get_statistics()  # 各チャネルの平均，各チャネルの標準偏差
     print(f"このデータセットは mean: {mean.to('cpu').detach().numpy()}, std: {std.to('cpu').detach().numpy()} だっぴ！")
 else:
-    mean = [0.17359632]
-    std = [0.33165097]
+    mean = [0.1307]
+    std = [0.3081]
 
 transform_test = transforms.Compose([
     transforms.ToTensor(),  # Tensor
@@ -68,7 +68,9 @@ with torch.no_grad():
     for data in testloader:
         images, labels = data[0].to(device), data[1].to(device)
         outputs = net(images)
+        # print(outputs)
         _, predicted = torch.max(outputs, 1)
+        # print(predicted)
 
         with open(csv_path, 'a') as f:
             writer = csv.writer(f)
