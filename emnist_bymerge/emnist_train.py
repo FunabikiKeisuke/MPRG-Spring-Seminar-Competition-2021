@@ -48,6 +48,16 @@ else:
     mean = [0.1307]
     std = [0.3081]
 
+transform_f = transforms.Compose([
+    transforms.ToPILImage(),
+    # transforms.RandomAffine(degrees=75, translate=(0.3, 0.3), scale=(0.5, 1.5), shear=30),  # 微妙
+    # transforms.RandomCrop(28, padding=3),  # 変わらない
+    transforms.RandomPerspective(),
+    transforms.RandomRotation(10, fill=(0,)),
+    # transforms.RandomAffine(degrees=[-10, 10], translate=(0.1, 0.1), scale=(0.5, 1.5)),  # Rotation の代わり
+    transforms.ToTensor(),  # Tensor
+    transforms.Normalize(mean, std),
+])
 transform_train = transforms.Compose([
     # transforms.RandomAffine(degrees=75, translate=(0.3, 0.3), scale=(0.5, 1.5), shear=30),  # 微妙
     # transforms.RandomCrop(28, padding=3),  # 変わらない
@@ -62,9 +72,44 @@ transform_test = transforms.Compose([
     transforms.Normalize(mean, std),
 ])
 
+
+class dataset_f(torch.utils.data.Dataset):
+
+    def __init__(self, img, label, transform=None):
+        self.transform = transform
+        self.data_num = len(img)
+        self.data = []
+        self.label = []
+        for i in range(self.data_num):
+            self.data.append(img[i])
+            self.label.append(label[i])
+        self.data_num = len(self.data)
+
+    def __len__(self):
+        return self.data_num
+
+    def __getitem__(self, idx):
+        out_data = self.data[idx]
+        out_data = torch.from_numpy(out_data)
+        out_label = self.label[idx]
+
+        if self.transform:
+            out_data = self.transform(out_data)
+
+        return out_data, out_label
+
+
 # 学習データをダウンロード
 trainset = torchvision.datasets.EMNIST(root='./data', split='bymerge', train=True, download=True,
                                        transform=transform_train)
+# 追加データセット
+for i in [5, 10, 15, 20]:
+    fdata = np.load(f'data_cGAN_f/point_{i}_epoch_1_f.npz')
+    x = fdata['x']
+    y = fdata['y'].astype(np.int64)  # label は LongTensor
+    fset = dataset_f(x, y, transform=transform_f)
+    trainset = trainset + fset
+
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
 # テストデータをダウンロード
@@ -84,12 +129,12 @@ print(net)
 criterion = nn.CrossEntropyLoss()
 
 
-# 最適化関数
 def update_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
 
+# 最適化関数
 lr = 0.005
 curr_lr = lr
 optimizer = optim.Adam(net.parameters(), lr=lr)

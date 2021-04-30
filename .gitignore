@@ -3,6 +3,8 @@
 
 # dataset
 data/
+/emnist_bymerge/data_cGAN_f/*
+!/emnist_bymerge/data_cGAN_f/.gitkeep
 
 # checkpoint
 /emnist_bymerge/checkpoint_cGAN/*
