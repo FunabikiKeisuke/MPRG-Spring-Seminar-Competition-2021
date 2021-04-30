@@ -35,8 +35,8 @@ def get_net(net_name):
         net = ResNet.ResNet101().to(device)
     elif net_name == "ResNet152":
         net = ResNet.ResNet152().to(device)
-    # elif net_name == "SENet18":
-    #     net = SENet.SENet18().to(device)
+    elif net_name == "SENet18":
+        net = SENet.SENet18().to(device)
     # elif net_name == "ShuffleNetG2":
     #     net = ShuffleNet.ShuffleNetG2().to(device)
     # elif net_name == "ShuffleNetG3":
