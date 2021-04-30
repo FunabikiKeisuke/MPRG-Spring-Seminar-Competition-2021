@@ -4,6 +4,10 @@
 # dataset
 data/
 
+# checkpoint
+/emnist_bymerge/checkpoint_cGAN/*
+!/emnist_bymerge/checkpoint_cGAN/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
