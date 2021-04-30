@@ -1,4 +1,5 @@
 import argparse
+import time
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -67,6 +68,7 @@ print("学習を始めるっぴ！")
 epochs = args.epochs
 best_acc = args.best_accuracy
 bast_epoch = 0
+start = time.time()
 for epoch in range(1, epochs + 1):
     print("epoch: %d/%d" % (epoch, epochs))
     for phase in ['train', 'test']:
@@ -86,7 +88,7 @@ for epoch in range(1, epochs + 1):
                 # loss の出力
                 running_loss += loss.item()
                 if i % 2000 == 1999:  # iが0からのカウントなので2000イテレーションごと
-                    print("iter: %d, loss: %f" % (i + 1, running_loss / 2000))
+                    print("iter: %d, loss: %f, time: %ds" % (i + 1, running_loss / 2000, int(time.time() - start)))
                     running_loss = 0.0
         else:  # 評価
             correct = 0
