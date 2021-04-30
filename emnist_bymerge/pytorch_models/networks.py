@@ -25,16 +25,16 @@ def get_net(net_name):
     #     net = MobileNet.MobileNet().to(device)
     # elif net_name == "MobileNetV2":
     #     net = MobileNetV2.MobileNetV2().to(device)
-    # elif net_name == "ResNet18":
-    #     net = ResNet.ResNet18().to(device)
-    # elif net_name == "ResNet34":
-    #     net = ResNet.ResNet34().to(device)
-    # elif net_name == "ResNet50":
-    #     net = ResNet.ResNet50().to(device)
-    # elif net_name == "ResNet101":
-    #     net = ResNet.ResNet101().to(device)
-    # elif net_name == "ResNet152":
-    #     net = ResNet.ResNet152().to(device)
+    elif net_name == "ResNet18":
+        net = ResNet.ResNet18().to(device)
+    elif net_name == "ResNet34":
+        net = ResNet.ResNet34().to(device)
+    elif net_name == "ResNet50":
+        net = ResNet.ResNet50().to(device)
+    elif net_name == "ResNet101":
+        net = ResNet.ResNet101().to(device)
+    elif net_name == "ResNet152":
+        net = ResNet.ResNet152().to(device)
     # elif net_name == "SENet18":
     #     net = SENet.SENet18().to(device)
     # elif net_name == "ShuffleNetG2":
@@ -51,8 +51,16 @@ def get_net(net_name):
     #     net = VGG.VGG19().to(device)
     elif net_name == "SpinalVGG":
         net = VGG.SpinalVGG().to(device)
-    # elif net_name == "WideResNet":
-    #     net = WideResNet.WideResNet().to(device)
+    elif net_name == "WideResNet16":
+        net = WideResNet.WideResNet16().to(device)
+    elif net_name == "WideResNet22":
+        net = WideResNet.WideResNet22().to(device)
+    elif net_name == "WideResNet28":
+        net = WideResNet.WideResNet28().to(device)
+    elif net_name == "WideResNet34":
+        net = WideResNet.WideResNet34().to(device)
+    elif net_name == "WideResNet40":
+        net = WideResNet.WideResNet40().to(device)
     else:
         net = f"WARNING: モデル名 {net_name} がないっぴ！"
 
