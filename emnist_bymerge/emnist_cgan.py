@@ -12,7 +12,7 @@ from pytorch_models import networks
 
 # パーサーの設定
 parser = argparse.ArgumentParser()
-parser.add_argument("-e", "--epochs", type=int, default=100, help="学習エポック数")
+parser.add_argument("-e", "--epochs", type=int, default=25, help="学習エポック数")
 parser.add_argument("-b", "--batch_size", type=int, default=256, help="学習時のバッチサイズ")
 args = parser.parse_args()
 
@@ -211,8 +211,7 @@ def Generate_img(epoch, G_model, device, z_dim, noise, var_mode, labels, log_dir
 
         # Generatorでサンプル生成
         samples = torch.transpose(G_model(noise, labels).data.cpu(), 2, 3)
-        # samples = (samples / 2) + 0.5
-        save_image(samples, os.path.join(log_dir, 'epoch_%05d.png' % (epoch + 1)), nrow=7)
+        save_image(samples, os.path.join(log_dir, f'epoch_{epoch + 1}.png'), nrow=7)
 
 
 def model_run(num_epochs, batch_size, dataloader, device):
@@ -268,7 +267,7 @@ def model_run(num_epochs, batch_size, dataloader, device):
             Generate_img(epoch, G_model, device, z_dim, noise, var_mode, label)
 
         # モデル保存のためのcheckpointファイルを作成
-        if (epoch + 1) % 5 == 0:
+        if (epoch + 1) % 1 == 0:
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': G_model.state_dict(),

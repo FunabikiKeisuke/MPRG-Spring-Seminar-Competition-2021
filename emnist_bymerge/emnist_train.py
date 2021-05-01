@@ -103,7 +103,7 @@ class dataset_f(torch.utils.data.Dataset):
 trainset = torchvision.datasets.EMNIST(root='./data', split='bymerge', train=True, download=True,
                                        transform=transform_train)
 # 追加データセット
-for i in [5, 10, 15, 20]:
+for i in [1, 2, 3, 4, 5, 8, 9, 10, 13, 14, 16, 18, 19, 20, 22, 23, 24, 25]:
     fdata = np.load(f'data_cGAN_f/point_{i}_epoch_1_f.npz')
     x = fdata['x']
     y = fdata['y'].astype(np.int64)  # label は LongTensor
